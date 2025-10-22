@@ -59,9 +59,6 @@ void main()
 ## 4. Write a C program to check if a file named "sample.txt" exists in the current directory?
 ```c
 #include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<unistd.h>
 #include<fcntl.h>
 #include<sys/types.h>
 void main()
@@ -78,11 +75,6 @@ void main()
 ```c
 //cmd:- mv newname.txt oldname.txt
 #include<stdio.h>
-#include<stdlib.h>
-#include<unistd.h>
-#include<fcntl.h>
-#include<sys/stat.h>
-#include<sys/types.h>
 void main()
 {
         if(rename("destfile.txt","destnationfile.txt")==0)
@@ -107,7 +99,6 @@ void main()
 //cmd:- $cp destfile.txt file.txt
 #include<stdio.h>
 #include<stdlib.h>
-#include<string.h>
 #include<unistd.h>
 #include<fcntl.h>
 void main()
@@ -118,5 +109,9 @@ void main()
         dfd=open("destfile.txt",O_WRONLY|O_CREAT,0640);
         while((num=read(sfd,buf,100))>0)
                 write(dfd,buf,num);
+        close(sfd);
+        close(dfd);
 }
 ```
+## 8. Develop a C program to move a file from one directory to another?
+```c
