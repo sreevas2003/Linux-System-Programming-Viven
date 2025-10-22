@@ -40,6 +40,7 @@ void main()
 ```
 ## 3 Implement a C program to create a new directory named "Test" in the current directory?
 ```c
+//cmd:- $ mkdir test
 #include<stdio.h>
 #include<sys/stat.h>
 #include<stdlib.h>
@@ -76,7 +77,31 @@ void main()
 ## 5. Develop a C program to rename a file from "oldname.txt" to "newname.txt"?
 ```c
 //cmd:- mv newname.txt oldname.txt
-
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<fcntl.h>
+#include<sys/stat.h>
+#include<sys/types.h>
+void main()
+{
+        if(rename("destfile.txt","destnationfile.txt")==0)
+                printf("file is renamed\n");
+        else
+                printf("oldfile not exist\n");
+}
+```
+## 6. Implement a C program to delete a file named "delete_me.txt"? 
+```c
+#include<stdio.h>
+void main()
+{
+        if(remove("destfile.txt")==0)
+                printf("File is delete successfully\n");
+        else
+                printf("File is not found or deleted\n");
+}
+```
 ## 7. Write a C program to copy the contents of one file to another?
 ```c
 //cmd:- $cp destfile.txt file.txt
@@ -85,7 +110,7 @@ void main()
 #include<string.h>
 #include<unistd.h>
 #include<fcntl.h>
-void main(int argc,char* argv[])
+void main()
 {
         int sfd,dfd,num;
         char buf[100];
