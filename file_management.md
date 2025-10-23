@@ -115,3 +115,26 @@ void main()
 ```
 ## 8. Develop a C program to move a file from one directory to another?
 ```c
+```
+## 9. Implement a C program to list all files in the current directory? 
+```c
+//cmd:- $ls -l
+#include<stdio.h>
+#include<unistd.h>
+#include<stdlib.h>
+void main()
+{
+        //execl("/bin/ls","ls","-l",0);
+        execlp("ls","ls","-l",0);
+/*
+        char* argv[5];
+        argv[0]="ls";
+        argv[1]="-l";
+        argv[2]='\0';
+//      execv("/bin/ls",argv);
+        execvp("ls",argv);
+*/
+}
+```
+## 10. Write a C program to get the size of a file named "file.txt"? 
+```c
