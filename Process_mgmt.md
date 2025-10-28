@@ -77,7 +77,28 @@ void main()
 ```
 ## 15. Write a C program to create multiple child processes using fork() and display their PIDs.
 ```c
-
+#include<stdio.h>
+#include<unistd.h>
+#include<stdlib.h>
+void main()
+{
+        int i,n,pid;
+        printf("No.of childs\n");
+        scanf("%d",&n);
+        for(i=1;i<=n;i++)
+        {
+                pid=fork();
+                if(pid==0)
+                {
+                        printf("%d child is pid is %d and ppid is %d\n",i,getpid(),getppid());
+                        exit(0);
+                }
+        }
+        for(i=1;i<=n;i++)
+                wait(NULL);
+        printf("Parent pid %d\n",getpid());
+}
+```
 ## 19. Write a program in C to create a zombie process and explain how to avoid it. 
 ```c
 /*A zombie process is a process that has completed its execution but still has an entry in the process table to allow its parent process to read its exit status. It's "dead" but hasn't been "reaped."*/
@@ -102,4 +123,31 @@ void main()
         }
 }
 ```
-
+## 22. Write a C program to demonstrate the use of the waitpid() function for process synchronization. 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/wait.h>
+#include<unistd.h>
+void main()
+{
+        int sta1,sta2,pid1,pid2;
+        pid1=fork();
+        if(pid1==0)
+        {
+                printf("Child 1 process created %d\n",getpid());
+                sleep(10);
+                exit(0);
+        }
+        pid2=fork();
+        if(pid2==0)
+        {
+                printf("Child 1 process created %d\n",getpid());
+                sleep(10);
+                exit(0);
+        }
+        waitpid(pid1,&sta1,0);
+        waitpid(pid2,&sta2,0);
+        printf("%d %d",WEXITSTATUS(sta1),WEXITSTATUS(sta2));
+}
+```
