@@ -151,3 +151,20 @@ void main()
         printf("%d %d",WEXITSTATUS(sta1),WEXITSTATUS(sta2));
 }
 ```
+## 28 Write a C program using system() to execute shell commands
+```c
+#include<stdio.h>
+#include<stdlib.h>
+void main()
+{
+        char str[50];
+        printf("enter any command : ");
+        gets(str);
+        int res=system(str);
+        if(res==-1)
+                printf("Error Occured\n");
+        else
+                printf("%s command executed successfully and %d\n",str,WEXITSTATUS(res));
+}
+```
+## 
