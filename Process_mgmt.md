@@ -167,4 +167,42 @@ void main()
                 printf("%s command executed successfully and %d\n",str,WEXITSTATUS(res));
 }
 ```
-## 
+## 32. Write a C program to create a process using fork() and pass arguments to the child process. 
+```c
+#include<stdio.h>
+#include<unistd.h>
+#include<stdlib.h>
+#include<sys/types.h>
+void display(int argc,char* argv[],char str[],pid_t id)
+{
+        printf("%s of pid is %d of arguments received\n",str,id);
+        int i;
+        for(i=1;i<argc;i++)
+                printf("%s\n",argv[i]);
+        if(argc==1)
+                printf("no custom arguments provided\n");
+}
+void main(int argc,char* argv[])
+{
+        pid_t id;
+        id=fork();
+        if(id<0)
+        {
+                printf("Exit Occured\n");
+                exit(EXIT_FAILURE);
+        }
+        else if(id==0)
+        {
+                printf("child process execution start \n");
+                display(argc,argv,"child",getpid());
+                printf("child successfully exited\n");
+                exit(EXIT_SUCCESS);
+        }
+        else
+        {
+                printf("parent process execution start\n");
+                display(argc,argv,"parent",getpid());
+                printf("Parent process exited\n");
+                exit(EXIT_SUCCESS);
+        }
+}
