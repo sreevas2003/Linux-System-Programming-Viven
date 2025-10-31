@@ -206,3 +206,92 @@ void main(int argc,char* argv[])
                 exit(EXIT_SUCCESS);
         }
 }
+```
+## 39. Write a C program to demonstrate the use of the execvp() function. 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/types.h>
+void main()
+{
+        char* buf[5];
+        buf[0]="ps";
+        buf[1]="-ef";
+        buf[2]='\0';
+        printf("Executed successfully\n");
+        execvp("ps",buf);
+}
+```
+## 42. Write a C program to create a process group and change its process group ID (PGID).
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/types.h>
+#include<unistd.h>
+void main()
+{
+        pid_t id;
+        id=fork();
+        if(id<0)
+        {
+                printf("fork failed\n");
+                exit(EXIT_FAILURE);
+        }
+        if(id==0)
+        {
+                printf("Child process PID is %d and PGID is %d\n",getpid(),getpgrp());
+                sleep(5);
+                printf("Child process after changing PID is %d and PGID is %d\n",getpid(),getpgrp());
+                exit(EXIT_SUCCESS);
+        }
+        else
+        {
+                printf("Parent process PID is %d and PGID is %d\n",getpid(),getpgrp());
+                sleep(1);
+                if(setpgid(id,id)==0)
+                {
+                        printf("Group PID changed successfully\n");
+                }
+                sleep(5);
+                exit(EXIT_SUCCESS);
+        }
+}
+```
+## 49. Write a C program to create a child process using vfork() and demonstrate its usage. 
+```c
+#include<stdio.h>
+#include<sys/wait.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<sys/types.h>
+void main()
+{
+        pid_t id;
+        int x=10,status;
+        printf("x=%d\n",x);
+        id=vfork();
+        if(id<0)
+        {
+                printf("vfork failed\n");
+                exit(EXIT_FAILURE);
+        }
+        if(id==0)
+        {
+                x=20;
+                printf("x=%d\n",x);
+                printf("child process PID %d and PPID is %d\n",getpid(),getppid());
+                sleep(1);
+                exit(EXIT_SUCCESS);
+        }
+        else
+        {
+                printf("parent process PID %d and PPID is %d\n",getpid(),getppid());
+                sleep(2);
+        }
+        id=wait(&status);
+        printf("x=%d\n",x);
+        printf("Status is %d\n",WEXITSTATUS(status));
+}
+```
+## 
+
