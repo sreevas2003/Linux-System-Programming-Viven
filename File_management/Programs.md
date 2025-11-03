@@ -261,3 +261,60 @@ void main()
         close(fd);
 }
 ```
+## 17. Implement a C program to change the permissions of a file named "file.txt" to read only? 
+```c
+#include<stdio.h>
+#include<fcntl.h>
+#include<stdlib.h>
+#include<sys/types.h>
+#include<unistd.h>
+void main()
+{
+        printf("before changing permisssion\n");// $ ls -l
+        sleep(5);
+        if(chmod("file.txt",0444)==0)
+        {
+                printf("permissions changed successfull\n");
+                exit(EXIT_SUCCESS);
+        }
+        else
+        {
+                printf("not changed\n");
+                exit(EXIT_FAILURE);
+        }
+}
+```
+## 18. Write a C program to change the ownership of a file named "file.txt" to the user "user1"? 
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>      
+#include <errno.h>    
+int main() {
+    const char *filename = "file.txt";
+    const char *target_username = "sreevas2003";
+    struct passwd *pwd_info;
+    uid_t target_uid;
+    gid_t target_gid;
+    pwd_info = getpwnam(target_username);
+    if (pwd_info == NULL)
+    {
+        fprintf(stderr, "Error: User '%s' not found on this system (getpwnam failed).\n", target_username);
+        exit(EXIT_FAILURE);
+    }
+    target_uid = pwd_info->pw_uid;
+    target_gid = pwd_info->pw_gid; 
+    printf("Attempting to change ownership of '%s' to user '%s'...\n",filename, target_username);
+    printf("Target UID: %d, Target GID: %d\n", (int)target_uid, (int)target_gid);
+    if (chown(filename, target_uid, target_gid) == 0) {
+        printf("Success: Ownership of '%s' changed to user '%s'.\n", filename, target_username);
+    } else {
+        perror("Error changing ownership (chown)");
+        fprintf(stderr, "Failed to change ownership. Ensure you run this with superuser privileges (e.g., 'sudo').\n");
+        exit(EXIT_FAILURE);
+    }
+    exit(EXIT_SUCCESS);
+}
+```
