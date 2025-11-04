@@ -167,6 +167,28 @@ void main()
 ```
 ## 11. Develop a C program to check if a directory named "Test" exists in the current directory? 
 ```c
+/*
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/types.h>
+#include<sys/stat.h>
+#include<errno.h>
+
+void main()
+{
+        struct stat buf;
+        char* path="/home/sreevas2003/lsp/file_mgmt/test";
+        if(stat(path,&buf)==-1)
+        {
+                perror("");
+                exit(EXIT_FAILURE);
+        }
+        if(S_ISDIR(buf.st_mode))
+                printf("directory is present\n");
+        else
+                printf("directory is not present\n");
+}
+*/
 #include<stdio.h>
 #include<stdlib.h>
 #include<fcntl.h>
