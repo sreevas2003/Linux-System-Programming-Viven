@@ -448,3 +448,48 @@ void main()
 }
 ```
 ## 25. Develop a C program to get the size of a directory named "Documents"? 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<dirent.h>
+#include<sys/stat.h>
+#include<errno.h>
+#include<string.h>
+#include<unistd.h>
+off_t get_dir_size(char* path)
+{
+        DIR* dir;
+        struct dirent *entry;
+        struct stat buf;
+        off_t to=0;
+        dir = opendir(path);
+        if(dir==0)
+        {
+                perror("Details:");
+                return -1;
+        }
+        while((entry=readdir(dir))!=NULL)
+        {
+                char full[1024];
+                if((strcmp(entry->d_name,".")==0) || (strcmp(entry->d_name,"..")==0))
+                        continue;
+                snprintf(full,sizeof(full),"%s/%s",path,entry->d_name);
+                if(stat(full,&buf)==-1)
+                {
+                        perror("");
+                        continue;
+                }
+                if(S_ISDIR(buf.st_mode))
+                {
+                        off_t sub=get_dir_size(full);
+                        if(sub!=-1)
+                                to+=sub;
+                }
+                else if(S_ISREG(buf.st_mode))
+                        to+=buf.st_size;
+        }
+        closedir(dir);
+        return to;
+}
+```
+##
