@@ -401,4 +401,50 @@ void main()
         }
 }
 ```
-## 
+## 23. Implement a C program to read and display the contents of a CSV file named "data.csv"?
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<fcntl.h>
+#include<sys/types.h>
+#include<unistd.h>
+#include<errno.h>
+void main()
+{
+        int fd;
+        fd=open("file.csv",O_RDONLY,0640);
+        if(fd<0)
+        {
+                perror("Details:");
+                exit(EXIT_FAILURE);
+        }
+        char buf[200];
+        size_t len=sizeof(buf);
+        read(fd,buf,len);
+        buf[len]='\0';
+        printf("contents of csv file: \n%s",buf);
+}
+```
+## 24. Write a C program to get the absolute path of the current working directory?
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<errno.h>
+void main()
+{
+        char cwd[4096];
+        if(getcwd(cwd,sizeof(cwd))!=0)
+        {
+                printf("we get path Successfully\n");
+                printf("%s\n",cwd);
+                exit(EXIT_SUCCESS);
+        }
+        else
+        {
+                perror("error Details:\n");
+                exit(EXIT_FAILURE);
+        }
+}
+```
+## 25. Develop a C program to get the size of a directory named "Documents"? 
