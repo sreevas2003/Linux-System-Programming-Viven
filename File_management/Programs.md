@@ -318,3 +318,87 @@ int main() {
     exit(EXIT_SUCCESS);
 }
 ```
+## 19. Develop a C program to get the last modified timestamp of a file named "file.txt"? 
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <unistd.h>
+int main() {
+    const char *filename = "file.txt";
+    struct stat buf;
+    if (stat(filename, &buf) == -1) {
+        perror("Error getting file status");
+        return EXIT_FAILURE;
+    }
+    time_t time = buf.st_mtime;
+    char *time_str = ctime(&time);
+    printf("File: %s\n", filename);
+    printf("Last modified timestamp (time_t): %ld\n", (long)time);
+    printf("Last modified time (formatted): %s", time_str);
+    return EXIT_SUCCESS;
+}
+```
+## 20. Implement a C program to create a temporary file and write some data to it? 
+```c
+#include<stdio.h>
+#include<fcntl.h>
+#include<stdlib.h>
+#include<sys/types.h>
+void main()
+{
+        int fd;
+        fd=open("tempfile.txt",O_RDWR|O_CREAT,0640);
+        char buf[]="this is a temperary file";
+        int n=sizeof(buf);
+        write(fd,buf,n);
+}
+```
+## 21. Write a C program to check if a given path refers to a file or a directory? 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/types.h>
+#include<sys/stat.h>
+#include<errno.h>
+#include<unistd.h>
+void main()
+{
+        char *path="/home/sreevas2003/lsp/file_mgmt/15.c";
+        struct stat buf;
+        if(stat(path,&buf)==-1)
+        {
+                perror("details:");
+                exit(EXIT_FAILURE);
+        }
+        if(S_ISREG(buf.st_mode))
+                printf("It is a Regular file\n");
+        else if(S_ISDIR(buf.st_mode))
+                printf("It is a directory\n");
+        else
+                printf("It is another ipc object\n");
+}
+```
+## 22. Develop a C program to create a hard link named "hardlink.txt" to a file named "source.txt"? 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<errno.h>
+void main()
+{
+        if(link("file.txt","link.txt")==0)
+        {
+                printf("Successfully '%s' linked to '%s' file\n","file.txt","link.txt");
+                exit(EXIT_SUCCESS);
+        }
+        else
+        {
+                perror("details :");
+                exit(EXIT_FAILURE);
+        }
+}
+```
+## 
