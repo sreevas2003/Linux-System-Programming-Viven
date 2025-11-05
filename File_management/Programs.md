@@ -592,8 +592,129 @@ off_t get_dir_size(char* path)
 ```
 ## 26. Implement a C program to recursively copy all files and directories from one directory to another?
 ```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <string.h>
+#include <fcntl.h> 
+#include <unistd.h> 
+#include <errno.h>  
+#define PATH_MAX 4096
+#define BUFFER_SIZE 4096
+int copy_file(const char *src_path, const char *dest_path, mode_t mode) {
+    int src_fd, dest_fd;
+    ssize_t bytes_read, bytes_written;
+    char buffer[BUFFER_SIZE];
+    src_fd = open(src_path, O_RDONLY);
+    if (src_fd < 0) {
+        perror("Error opening source file for reading");
+        return -1;
+    }
+    dest_fd = open(dest_path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (dest_fd < 0) {
+        perror("Error opening destination file for writing");
+        close(src_fd);
+        return -1;
+    }
+    while ((bytes_read = read(src_fd, buffer, BUFFER_SIZE)) > 0) {
+        bytes_written = write(dest_fd, buffer, bytes_read);
+        if (bytes_written != bytes_read) {
+            perror("Error writing to destination file (incomplete write)");
+            close(src_fd);
+            close(dest_fd);
+            return -1;
+        }
+    }
+    if (bytes_read == -1) {
+        perror("Error reading from source file");
+        close(src_fd);
+        close(dest_fd);
+        return -1;
+    }
+    if (fchmod(dest_fd, mode) == -1) {
+        perror("Warning: Error setting file permissions on destination");
+    }
+    close(src_fd);
+    close(dest_fd);
+    printf("[FILE] Copied: %s\n", dest_path);
+    return 0;
+}
+int copy_recursively(char *src_path,char *dest_path) {
+    DIR *dir;
+    struct dirent *entry;
+    struct stat buf;
+    char next_src_path[PATH_MAX];
+    char next_dest_path[PATH_MAX];
+    if (stat(src_path, &buf) == -1) {
+        perror("Error getting status of source path");
+        return -1;
+    }
+    if (!S_ISDIR(buf.st_mode)) {
+        fprintf(stderr, "Error: Internal call made with non-directory source: %s\n", src_path);
+        return -1;
+    }
+    if (mkdir(dest_path, buf.st_mode) == -1) {
+        if (errno != EEXIST) {
+            perror("Error creating destination directory");
+            return -1;
+        }
+    } else {
+         printf("[DIR] Created: %s\n", dest_path);
+    }
+    if (!(dir = opendir(src_path))) {
+        perror("Error opening source directory for reading");
+        return -1;
+    }
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+        if (snprintf(next_src_path, PATH_MAX, "%s/%s", src_path, entry->d_name) >= PATH_MAX ||
+            snprintf(next_dest_path, PATH_MAX, "%s/%s", dest_path, entry->d_name) >= PATH_MAX) {
+            fprintf(stderr, "Warning: Path buffer overflow for entry %s. Skipping.\n", entry->d_name);
+            continue;
+        }
+        if (stat(next_src_path, &buf) == -1) {
+            perror("Error getting status of entry");
+            continue;
+        }
+        if (S_ISDIR(buf.st_mode)) {
+            if (copy_recursively(next_src_path, next_dest_path) == -1) {
+                closedir(dir);
+                return -1;
+            }
+        } else if (S_ISREG(buf.st_mode)) {
+            copy_file(next_src_path, next_dest_path, buf.st_mode);
+        }
+    }
+    closedir(dir);
+    return 0;
+}
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <source_directory> <destination_directory>\n", argv[0]);
+        return 1;
+    }
+    char *source_dir = argv[1];
+    char *destination_dir = argv[2];
+    printf("Starting recursive copy process...\n");
+    printf("Source: %s\n", source_dir);
+    printf("Destination: %s\n", destination_dir);
+    if (strncmp(source_dir, destination_dir, strlen(source_dir)) == 0 && (destination_dir[strlen(source_dir)] == '/' || destination_dir[strlen(source_dir)] == '\0')) {
+        fprintf(stderr, "Error: Destination directory cannot be inside the source directory.\n");
+        return 1;
+    }
+    if (copy_recursively(source_dir, destination_dir) == 0) {
+        printf("\nRecursive copy completed successfully.\n");
+        return 0;
+    } else {
+        fprintf(stderr, "\nRecursive copy failed due to an error.\n");
+        return 1;
+    }
+}
 ```
-## 
+## 27. Write a C program to get the number of files in a directory named "Images"?
 ```c
 #include<stdio.h>
 #include<stdlib.h>
