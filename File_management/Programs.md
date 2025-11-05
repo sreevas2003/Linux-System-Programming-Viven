@@ -219,7 +219,7 @@ void main()
         }
 }
 ```
-##
+## 13. Write a C program to recursively list all files and directories in a given directory?
 ```c
 #include<stdio.h>
 #include<string.h>
@@ -588,5 +588,59 @@ off_t get_dir_size(char* path)
         }
         closedir(dir);
         return to;
+}
+```
+## 26. Implement a C program to recursively copy all files and directories from one directory to another?
+```c
+```
+## 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<dirent.h>
+#include<sys/types.h>
+#include<sys/stat.h>
+#include<errno.h>
+int count(char* path)
+{
+        int c=0;
+        DIR* dir;
+        struct stat buf;
+        struct dirent *entry;
+        if((dir=opendir(path))==0)
+        {
+                perror("Details:");
+                return -1;
+        }
+        while((entry=readdir(dir))!=NULL)
+        {
+                char full_path[4096];
+                if(snprintf(full_path,4096,"%s/%s",path,entry->d_name)>=4096)
+                {
+                        perror("Details:");
+                        continue;
+                }
+                if(strcmp(entry->d_name,".")==0 || strcmp(entry->d_name,"..")==0)
+                        continue;
+                if(stat(full_path,&buf)==-1)
+                {
+                        perror("Dteails:");
+                        continue;
+                }
+                if(S_ISREG(buf.st_mode))
+                        c++;
+        }
+        closedir(dir);
+        return c;
+}
+void main()
+{
+        char *path="/home/sreevas2003/lsp";
+        int c=count(path);
+        if(c==-1)
+                perror("Details:");
+        else
+                printf("Number of files in LSP directory is %d\n",c);
 }
 ```
