@@ -219,6 +219,82 @@ void main()
         }
 }
 ```
+##
+```c
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#include<fcntl.h>
+#include<dirent.h>
+#include<sys/types.h>
+#include<sys/stat.h>
+#include<errno.h>
+void path_indentation(int depth)
+{
+        for(int i=0;i<depth;i++)
+                printf("|   ");
+}
+int list(char *path,int depth)
+{
+        DIR* dir;
+        struct stat buf;
+        struct dirent *entry;
+        if(!(dir=opendir(path)))
+        {
+                perror("Details:");
+                return EXIT_FAILURE;
+        }
+        while((entry=readdir(dir))!=0)
+        {
+                char full_path[4096];
+                if(snprintf(full_path,4096,"%s/%s",path,entry->d_name)>=4096)
+                {
+                        perror("Details:");
+                        continue;
+                }
+                if(strcmp(entry->d_name,".")==0 || strcmp(entry->d_name,"..")==0)
+                        continue;
+                if(stat(full_path,&buf)==-1)
+                {
+                        perror("Details:");
+                        continue;
+                }
+                path_indentation(depth);
+                if(S_ISDIR(buf.st_mode))
+                {
+                        printf("|__ [DIR] %s\n",entry->d_name);
+                        list(full_path,depth+1);
+                }
+                else if(S_ISREG(buf.st_mode))
+                {
+                        printf("|-- [FILE] %s\n",entry->d_name);
+                }
+                else
+                {
+                        printf("|-- [OTHER] %s\n",entry->d_name);
+                }
+        }
+        closedir(dir);
+        return EXIT_SUCCESS;
+}
+void main(int argc,char *argv[])
+{
+        if(argc!=2)
+        {
+                perror("Details:");
+                exit(EXIT_FAILURE);
+        }
+        printf("%s directory of list of files and sub directories\n",argv[1]);
+        if(list(argv[1],0)==0)
+        {
+                printf("\nsuccessfully completed\n");
+        }
+        else
+        {
+                perror("Details:");
+        }
+}
+```
 ## 14. Develop a C program to delete all files in a directory named "Temp"?
 ```c
 #include<stdio.h>
