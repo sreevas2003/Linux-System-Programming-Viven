@@ -924,4 +924,95 @@ int main(void)
     return 0;
 }
 ```
-
+## 33. Write a C program to create a new empty file named "empty.txt"? 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<fcntl.h>
+#include<sys/types.h>
+void main()
+{
+        int fd;
+        if((fd=open("empty.txt",O_CREAT,0640))<0)
+        {
+                perror("Details:");
+                exit(1);
+        }
+        printf("Empty file Created successfully\n");
+}
+```
+## 34. Develop a C program to get the permissions (mode) of a file named "file.txt"? 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<sys/types.h>
+#include<sys/stat.h>
+#include<errno.h>
+void main()
+{
+        const char* path="file.txt";
+        struct stat buf;
+        if(stat(path,&buf)==1)
+        {
+                perror("Details:");
+                exit(1);
+        }
+        printf("Permissions of file %s : ",path);
+        printf((S_ISDIR(buf.st_mode))?"d":"-");
+        printf((buf.st_mode & S_IRUSR)?"r":"-");
+        printf((buf.st_mode & S_IWUSR)?"w":"-");
+        printf((buf.st_mode & S_IXUSR)?"x":"-");
+        printf((buf.st_mode & S_IRGRP)?"r":"-");
+        printf((buf.st_mode & S_IWGRP)?"w":"-");
+        printf((buf.st_mode & S_IXGRP)?"x":"-");
+        printf((buf.st_mode & S_IROTH)?"r":"-");
+        printf((buf.st_mode & S_IWOTH)?"w":"-");
+        printf((buf.st_mode & S_IXOTH)?"x":"-");
+        printf("\n");
+}
+```
+## 35. Implement a C program to recursively delete a directory named "Temp" and all its contents? 
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
+void deleteDirectory(const char *path) {
+    struct dirent *entry;
+    DIR *dp = opendir(path);
+    if (dp == NULL) {
+        perror("Unable to open directory");
+        return;
+    }
+    char fullPath[1024];
+    struct stat statbuf;
+    while ((entry = readdir(dp)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 ||strcmp(entry->d_name, "..") == 0)
+            continue;
+        sprintf(fullPath, "%s/%s", path, entry->d_name);
+        if (stat(fullPath, &statbuf) == 0) {
+            if (S_ISDIR(statbuf.st_mode)) {
+                deleteDirectory(fullPath);
+            }
+            if (remove(fullPath) != 0) {
+                perror("Error deleting");
+            }
+        }
+    }
+    closedir(dp);
+    if (remove(path) != 0) {
+        perror("Error removing directory");
+    }
+}
+int main() {
+    const char *dirName = "dsp";
+    printf("Deleting directory: %s\n", dirName);
+    deleteDirectory(dirName);
+    printf("Deletion completed.\n");
+    return 0;
+}
+```
