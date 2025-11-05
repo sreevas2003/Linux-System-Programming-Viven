@@ -765,3 +765,124 @@ void main()
                 printf("Number of files in LSP directory is %d\n",c);
 }
 ```
+## 28. Develop a C program to create a FIFO (named pipe) named "myfifo" in the current directory? 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<errno.h>
+#include<sys/types.h>
+#include<sys/stat.h>
+void main()
+{
+        mode_t per=0666;
+        umask(0);
+        if(mkfifo("myfifo",per)==-1)
+        {
+                if(errno==EEXIST)
+                {
+                        printf("Already existn\n");
+                        exit(EXIT_FAILURE);
+                }
+                else
+                {
+                        perror("Details:");
+                        exit(EXIT_FAILURE);
+                }
+        }
+        printf("FIFO created successfully\n");
+        exit(EXIT_SUCCESS);
+}
+```
+## 29. Implement a C program to read data from a FIFO named "myfifo"?
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<errno.h>
+#include<sys/types.h>
+#include<fcntl.h>
+void main()
+{
+        int fd;
+        char buf[200];
+        if((fd=open("myfifo",O_RDONLY))<0)
+        {
+                perror("Details:");
+                exit(1);
+        }
+        int n;
+        if((n= read(fd,buf,sizeof(buf)))<0)
+        {
+                perror("Details:");
+                exit(1);
+        }
+        buf[n]='\0';
+        printf("Contents of FIFO is :\n%s\n",buf);
+        close(fd);
+        exit(0);
+}
+/*
+ echo "Hello FIFO!" > myfifo
+ */
+```
+## 30. Write a C program to truncate a file named "file.txt" to a specified length? 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<errno.h>
+void main()
+{
+        int len;
+        printf("Enter length: ");
+        scanf("%d",&len);
+        if(truncate("file.txt",len)==-1)
+        {
+                perror("Details:");
+                exit(1);
+        }
+        printf("File '%s' is turncated in '%d' length\n","file.txt",len);
+        exit(0);
+}
+```
+## 31. Develop a C program to search for a specific string in a file named "data.txt" and display the line number(s) where it occurs? 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<fcntl.h>
+#include<sys/types.h>
+void main()
+{
+        int fd;
+        if((fd=open("file.txt",O_RDONLY))<0)
+        {
+                perror("Details:");
+                exit(1);
+        }
+        FILE *fp = fdopen(fd, "r");
+        char str[30];
+        printf("Enter a string: ");
+        scanf("%s",str);
+        char line[4096];
+        int line_no=0;
+        int flag=0;
+        while(fgets(line,sizeof(line),fp))
+        {
+                line_no++;
+                if(strstr(line,str)!=0)
+                {
+                        printf("%s string found at line number is %d\n",line,line_no);
+                        flag=1;
+                }
+        }
+        if(!flag)
+        {
+                perror("Details:");
+                exit(1);
+        }
+        close(fd);
+        exit(0);
+}
+```
