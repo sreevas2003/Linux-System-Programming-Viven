@@ -16,3 +16,18 @@ Linux OS supports seven major types of files, each serving a different purpose i
 
 ## 2. How do IPC Objects ,named pipes, be accessed? 
 
+Named pipes (FIFOs) are accessed like normal files.
+Processes use open(), read(), write(), and close() to communicate through them after creating them with mkfifo().
+
+---
+
+## 3. User space application sends request to Hardware by using which I/O calls? 
+
+User-space applications send requests to hardware indirectly through the kernel using system calls such as:
+open() – open device file (e.g., /dev/ttyS0)
+read() / write() – send or receive data
+ioctl() – send control/configuration commands to the hardware
+mmap() – map device memory to user space (if supported)
+✅ In short: Hardware is accessed from user space through device files using read(), write(), and ioctl() system calls
+
+---
