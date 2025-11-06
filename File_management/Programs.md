@@ -1039,3 +1039,446 @@ void main()
         close(fd);
 }
 ```
+## 37. Develop a C program to read data from a text file named "input.txt" and write it to another file named "output.txt" in reverse order? 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<fcntl.h>
+#include<string.h>
+int main(){
+        int fdin,fdout;
+        fdin=open("input.txt",O_RDONLY);
+        if(fdin<0){
+                printf("Error");
+                exit(1);
+        }
+        char str[100];
+        int bytes;
+        bytes=read(fdin,str,sizeof(str)-1);
+        if(bytes<0){
+                printf("Error");
+                close(fdin);
+                exit(1);
+        }
+        str[bytes]='\0';
+        close(fdin);
+        for(int i=0,j=strlen(str)-1;i<j;i++,j--){
+                int temp=str[i];
+                str[i]=str[j];
+                str[j]=temp;
+        }
+        fdout=open("output.txt",O_WRONLY|O_CREAT,0666);
+        if(fdout<0){
+                printf("Error");
+                exit(1);
+        }
+        if(write(fdout,str,strlen(str))<0){
+                printf("error");
+                exit(1);
+        }
+        close(fdout);
+        printf("File reversed successfully\n");
+
+}
+```
+## 38. Implement a C program to create a new directory named with the current date in the format "YYYY-MM-DD"? 
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+int main() {
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    char dirname[20];
+    strftime(dirname, sizeof(dirname), "%Y-%m-%d", t);
+    if (mkdir(dirname, 0755) == -1) {
+        perror("mkdir error");
+        return 1;
+    }
+    printf("Directory '%s' created successfully.\n", dirname);
+    return 0;
+}
+```
+## 39. Write a C program to read and display the contents of a binary file named "binary.bin"? 
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main() {
+    int fd;
+    unsigned char buffer[1];
+    ssize_t bytes;
+    fd = open("binary.bin", O_RDONLY);
+    if (fd < 0) {
+        perror("Error opening binary.bin");
+        exit(1);
+    }
+    printf("Contents of binary.bin (in hex):\n\n");
+    while ((bytes = read(fd, buffer, 1)) > 0) {
+        printf("%02X ", buffer[0]);
+    }
+    if (bytes < 0) {
+        perror("Read error");
+        close(fd);
+        exit(1);
+    }
+    printf("\n");
+    close(fd);
+    return 0;
+}
+```
+## 40. Develop a C program to get the size of the largest file in a directory? 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<dirent.h>
+#include<sys/stat.h>
+#include<errno.h>
+void main(int argc,char* argv[])
+{
+        if(argc!=2)
+        {
+                perror("error");
+                exit(1);
+        }
+        DIR* dir;
+        struct stat buf;
+        struct dirent *entry;
+        int large=-1;
+        if((dir=opendir(argv[1]))==NULL)
+        {
+                perror("error");
+                exit(1);
+        }
+        char full_path[1024];
+        while((entry=readdir(dir))!=NULL)
+        {
+                if(strcmp(entry->d_name,".")==0||strcmp(entry->d_name,"..")==0)
+                        continue;
+                snprintf(full_path,sizeof(full_path),"%s/%s",argv[1],entry->d_name);
+                if(stat(full_path,&buf)==-1)
+                {
+                        perror("error");
+                        exit(1);
+                }
+                if(S_ISREG(buf.st_mode))
+                {
+                        if(buf.st_size>large)
+                                large=buf.st_size;
+                }
+        }
+        closedir(dir);
+        printf("largest file size is %d\n",large);
+}
+```
+## 41. Implement a C program to check if a file named "data.txt" is readable? 
+```c
+#include <stdio.h>
+#include <unistd.h>
+int main() {
+    if (access("file.txt", R_OK) == 0) {
+        printf("File '%s' is readable.\n", "file.txt");
+    } else {
+        perror("File is not readable");
+    }
+    return 0;
+}
+```
+## 42. Write a C program to create a new directory named "Logs" and move all files with the ".log" extension into it?
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <dirent.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
+int main() {
+    DIR *dir;
+    struct dirent *entry;
+    if (mkdir("Logs", 0755) == -1) {
+        perror("mkdir");
+    }
+    if ((dir=opendir(".")) == NULL) {
+        perror("opendir");
+        return 1;
+    }
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_type == DT_DIR)
+            continue;
+        char *name = entry->d_name;
+        int len = strlen(name);
+        if (len > 4 && strcmp(name + (len - 4), ".log") == 0) {
+            char src[256], dest[256];
+            snprintf(src, sizeof(src), "%s", name);
+            snprintf(dest, sizeof(dest), "Logs/%s", name);
+            if (rename(src, dest) == -1)
+                perror("rename");
+            else
+                printf("Moved: %s -> %s\n", src, dest);
+        }
+    }
+    closedir(dir);
+    return 0;
+}
+```
+## 43. Develop a C program to check if a file named "config.ini" is writable? 
+```c
+#include<stdio.h>
+#include<unistd.h>
+#include<stdlib.h>
+void main()
+{
+        if(access("file.txt",W_OK)==0)
+                printf("file %s is Writable\n","file.txt");
+        else
+                perror("Details:");
+}
+```
+## 44. Implement a C program to read the contents of a text file named "instructions.txt" and execute the instructions as shell commands? 
+```c
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+int main() {
+    int fd = open("instructions.txt", O_RDONLY);
+    if (fd < 0) {
+        perror("open");
+        return 1;
+    }
+
+    char buf[1024];
+    ssize_t n = read(fd, buf, sizeof(buf) - 1);
+    close(fd);
+    if (n <= 0) return 0;
+
+    buf[n] = '\0';
+    char *cmd = strtok(buf, "\n");
+    while (cmd) {
+        system(cmd); // executes shell command
+        cmd = strtok(NULL, "\n");
+    }
+
+    return 0;
+}
+```
+## 45.Write a C program to get the number of hard links to a file named "file.txt"?
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/stat.h>
+int main(){
+        struct stat buf;
+        if(stat("file.txt",&buf)==-1){
+                printf("Error");
+                exit(1);
+        }
+        printf("Number of hard links to 'file.txt' :%lu\n",buf.st_nlink);
+}
+```
+## 46. Develop a C program to copy the contents of all text files in a directory into a single file named "combined.txt"? 
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <dirent.h>
+#include <string.h>
+#include <sys/stat.h>
+int ends_with_txt(const char *name) {
+    int len = strlen(name);
+    return (len > 4 && strcmp(name + len - 4, ".txt") == 0);
+}
+int main() {
+    DIR *dir;
+    struct dirent *entry;
+    FILE *out, *in;
+    char buffer[1024];
+    out = fopen("combined.txt", "w");
+    if (!out) {
+        perror("fopen combined.txt");
+        return 1;
+    }
+    dir = opendir(".");
+    if (!dir) {
+        perror("opendir");
+        fclose(out);
+        return 1;
+    }
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_type == DT_DIR)
+            continue;
+        const char *name = entry->d_name;
+        if (ends_with_txt(name) && strcmp(name, "combined.txt") != 0) {
+            in = fopen(name, "r");
+            if (!in) {
+                perror("fopen input file");
+                continue;
+            }
+            size_t n;
+            while ((n = fread(buffer, 1, sizeof(buffer), in)) > 0) {
+                fwrite(buffer, 1, n, out);
+            }
+            fclose(in);
+            fprintf(out, "\n");
+            printf("Copied %s\n", name);
+        }
+    }
+    closedir(dir);
+    fclose(out);
+    printf("All text files combined into combined.txt\n");
+    return 0;
+}
+```
+## 47. Implement a C program to recursively calculate the total size of all files in a directory and its subdirectories? 
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
+long long get_size(const char *path) {
+    DIR *dir;
+    struct dirent *entry;
+    struct stat st;
+    char fullpath[1024];
+    long long total = 0;
+    dir = opendir(path);
+    if (!dir) {
+        perror("opendir");
+        return 0;
+    }
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+            continue;
+        snprintf(fullpath, sizeof(fullpath), "%s/%s", path, entry->d_name);
+        if (lstat(fullpath, &st) == -1) {
+            perror("lstat");
+            continue;
+        }
+        if (S_ISDIR(st.st_mode)) {
+            total += get_size(fullpath);
+        }
+        else if (S_ISREG(st.st_mode)) {
+            total += st.st_size;
+        }
+    }
+    closedir(dir);
+    return total;
+}
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        printf("Usage: %s <directory>\n", argv[0]);
+        return 1;
+    }
+    long long total = get_size(argv[1]);
+    printf("Total size: %lld bytes\n", total);
+    return 0;
+}
+```
+## 48. Write a C program to get the number of bytes in a file named "data.bin"? 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<fcntl.h>
+#include<string.h>
+int main(){
+        int fd;
+        fd=open("data.bin",O_RDONLY);
+        if(fd<0){
+                printf("Error");
+                exit(1);
+        }
+        int size=lseek(fd,0,SEEK_END);
+        if(size==-1){
+                perror("Error in getting file size");
+                close(fd);
+                exit(1);
+        }
+        printf("Number of bytes in 'data.bin':%d\n",size);
+        close(fd);
+}
+```
+## 49. Develop a C program to create a new directory named with the current timestamp in the format "YYYY-MM-DD-HH-MM-SS"? 
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+int main() {
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    char dirname[32];
+    strftime(dirname, sizeof(dirname), "%Y-%m-%d-%H-%M-%S", t);
+    if (mkdir(dirname, 0755) == -1) {
+        perror("mkdir");
+        return 1;
+    }
+    printf("Directory '%s' created successfully.\n", dirname);
+    return 0;
+}
+```
+## 50. Write a C program to create a symbolic link named "link.txt" to a file named "target.txt"? 
+```c
+#include <stdio.h>
+#include <unistd.h>
+int main() {
+    const char *target = "target.txt";
+    const char *linkname = "link.txt";
+    if (symlink(target, linkname) == -1) {
+        perror("symlink");
+        return 1;
+    }
+    printf("Symbolic link '%s' → '%s' created successfully.\n",
+           linkname, target);
+    return 0;
+}
+```
+## 51. Develop a C program to count the number of words in a file named "essay.txt"? 
+```c
+#include <stdio.h>
+#include <ctype.h>
+int main() {
+    FILE *fp = fopen("essay.txt", "r");
+    if (!fp) {
+        perror("fopen");
+        return 1;
+    }
+    int c, prev = ' ';
+    int words = 0;
+    while ((c = fgetc(fp)) != EOF) {
+        if (isspace(prev) && !isspace(c)) {
+            words++;
+        }
+        prev = c;
+    }
+    fclose(fp);
+    printf("Total words: %d\n", words);
+    return 0;
+}
+```
+## 52. Write a C program to get the last access time of a file named "data.txt"? 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/stat.h>
+#include<time.h>
+int main(){
+        const char *filename="data.txt";
+        struct stat buf;
+        if(stat(filename,&buf)>0){
+                printf("Error");
+                exit(1);
+        }
+        printf("Last access time:%s\n",ctime(&buf.st_atime));
+}
+```
