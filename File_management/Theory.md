@@ -24,10 +24,15 @@ Processes use open(), read(), write(), and close() to communicate through them a
 ## 3. User space application sends request to Hardware by using which I/O calls? 
 
 User-space applications send requests to hardware indirectly through the kernel using system calls such as:
+
 open() – open device file (e.g., /dev/ttyS0)
+
 read() / write() – send or receive data
+
 ioctl() – send control/configuration commands to the hardware
+
 mmap() – map device memory to user space (if supported)
+
 ✅ In short: Hardware is accessed from user space through device files using read(), write(), and ioctl() system calls
 
 ---
