@@ -46,3 +46,20 @@ they work with any type of I/O device—files, pipes, sockets, terminals, and ev
 They provide a common interface for all I/O operations, regardless of the underlying device.
 
 ---
+##
+An inode object stores all metadata about a file except its name.
+Typical inode contents include:
+
+File type
+
+Permissions (r/w/x)
+
+Owner UID and GID
+
+File size
+
+Timestamps (access, modify, change)
+
+Link count
+
+Block pointers (addresses of data blocks on disk)
