@@ -1,4 +1,5 @@
-## 85. What are the types of files present in Linux OS?
+
+## 1. What are the types of files present in Linux OS?
 
 Linux OS supports seven major types of files, each serving a different purpose in the system.
 | File Type               | Identifier | Description                                                                        |
@@ -11,6 +12,7 @@ Linux OS supports seven major types of files, each serving a different purpose i
 | FIFO (named pipe)       | p          | Supports one-way process communication.                                            |
 | Socket file             | s          | Used for network and inter-process two-way communication.                          |
 
+---
 
-## 86. How do IPC Objects ,named pipes, be accessed? 
+## 2. How do IPC Objects ,named pipes, be accessed? 
 
