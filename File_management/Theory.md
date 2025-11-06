@@ -36,3 +36,13 @@ mmap() – map device memory to user space (if supported)
 ✅ In short: Hardware is accessed from user space through device files using read(), write(), and ioctl() system calls
 
 ---
+
+## 4. Why are basic I/O calls called universal I/O calls? 
+
+Basic I/O calls like open(), read(), write(), close() are called universal I/O calls because
+
+they work with any type of I/O device—files, pipes, sockets, terminals, and even hardware device files.
+
+They provide a common interface for all I/O operations, regardless of the underlying device.
+
+---
