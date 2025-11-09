@@ -307,3 +307,349 @@ void main()
         }
 }
 ```
+## 12. Write a program to handle the SIGTSTP signal (terminal stop). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<string.h>
+#include<signal.h>
+void handler(int sig)
+{
+        printf("Caught the [%s] signal and number is %d\n",strsignal(sig),sig);
+}
+void main()
+{
+        struct sigaction act;
+        act.sa_handler=handler;
+        act.sa_flags=0;
+        sigemptyset(&act.sa_mask);
+        if(sigaction(SIGTSTP,&act,0)==-1)
+        {
+                perror("Details:");
+                exit(1);
+        }
+        printf("custom signal is Blocked\n");
+        while(1)
+        {
+                printf("Running..waiting for termination\n");
+                sleep(1);
+        }
+}
+```
+## 13. Write a program to handle the SIGVTALRM signal (virtual timer expired). 
+```c
+#include<stdio.h>
+#include<sys/time.h>
+#include<stdlib.h>
+#include<string.h>
+#include<unistd.h>
+#include<signal.h>
+void handler(int sig)
+{
+        printf("Caught the[%s] signal and nuber is %d\n",strsignal(sig),sig);
+        sleep(3);
+}
+void main()
+{
+        struct sigaction act;
+        act.sa_handler=handler;
+        act.sa_flags=0;
+        sigemptyset(&act.sa_mask);
+        if(sigaction(SIGVTALRM,&act,0)==-1)
+        {
+                perror("Details:");
+                exit(1);
+        }
+        struct itimerval timer;
+        timer.it_value.tv_sec=1;
+        timer.it_value.tv_usec=0;
+        timer.it_interval.tv_sec=1;
+        timer.it_interval.tv_usec=0;
+        setitimer(ITIMER_VIRTUAL,&timer,0);
+        printf("Virtual timer started.Waiting for signals\n");
+        while(1)
+        {
+                printf("Running..\n");
+                sleep(1);
+        }
+}
+```
+## 14. Write a program to handle the SIGWINCH signal (window size change). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<signal.h>
+#include<string.h>
+#include<sys/ioctl.h>
+static int got=0;
+void handler(int sig)
+{
+        printf("Caught the [%s] signal and number is %d\n",strsignal(sig),sig);
+        got=1;
+        sleep(2);
+}
+void window(void)
+{
+        struct winsize ws;
+        if(ioctl(STDOUT_FILENO,TIOCGWINSZ,&ws)==-1)
+        {
+                perror("Details:");
+                exit(1);
+        }
+        printf("Window size: %d rows and %d columns\n",(int)ws.ws_row,(int)ws.ws_col);
+        fflush(stdout);
+}
+
+void main()
+{
+        struct sigaction act;
+        act.sa_handler=handler;
+        act.sa_flags=0;
+        sigemptyset(&act.sa_mask);
+
+        if(sigaction(SIGWINCH,&act,0)==-1)
+        {
+                perror("Details:");
+                exit(1);
+        }
+
+        printf("SIGWINCH handler is installed. \n");
+        window();
+        printf("Press Cntl+C to exit\n");
+        while(1)
+        {
+                printf("Runnig..\n");
+                sleep(1);
+                if(got)
+                {
+                        got=0;
+                        window();
+                }
+        }
+}
+```
+## 15. Implement a C program to handle the SIGXFSZ signal (file size limit exceeded). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<fcntl.h>
+#include<sys/resource.h>
+#include<signal.h>
+void handler(int sig)
+{
+        printf("SIGXFSZ signal is received file size limit exceeded\n");
+        exit(1);
+}
+void main()
+{
+        signal(SIGXFSZ,handler);
+        struct rlimit limit;
+        limit.rlim_cur=2048;
+        limit.rlim_max=2048;
+        setrlimit(RLIMIT_FSIZE,&limit);
+        int fd;
+        char data[1024]="This is a test line to exceed file size limit.\n";
+        fd=open("output.txt",O_RDWR | O_CREAT | O_TRUNC,0644);
+        printf("Writing a data until file size exceede\n");
+        while(1)
+        {
+                write(fd,data,sizeof(data));
+                sleep(1);
+        }
+        close(fd);
+}
+```
+## 16. Create a program to handle the SIGPWR signal (power failure restart).
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<string.h>
+#include<signal.h>
+void handler(int sig)
+{
+        printf("Received [%s] signal Cleaning up and exiting\n",strsignal(sig));
+        exit(0);
+}
+void main()
+{
+        signal(SIGPWR,handler);
+        printf("SIGPWR signal is installed\n");
+        printf("Sleep for 3 seconds\n");
+        sleep(3);
+        printf("Now raising the siganl\n");
+        raise(SIGPWR);
+        while(1)
+                pause();
+}
+```
+## 17. Write a program to handle the SIGSYS signal (bad system call). 
+```c
+include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<signal.h>
+void handler(int sig)
+{
+        printf("Caught [%s] signal is received\n",strsignal(sig));
+        sleep(1);
+}
+void main()
+{
+        struct sigaction act;
+        act.sa_handler=handler;
+        act.sa_flags=0;
+        sigemptyset(&act.sa_mask);
+        if(sigaction(SIGSYS,&act,0)==-1)
+        {
+                perror("Details:");
+                exit(1);
+        }
+        printf("SIGSYS signal is installed..PID is %d\n",getpid());
+        printf("Sending the signal kill -SIGSYS %d\n",getpid());
+        while(1)
+        {
+                printf("Running..\n");
+                sleep(1);
+        }
+}
+```
+## 18. Write a C program to handle the SIGIO signal (I/O is possible on a descriptor). 
+```c
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<signal.h>
+void handler(int sig)
+{
+        printf("Caught the signal %d: %s\n",sig,strsignal(sig));
+        sleep(5);
+}
+void main()
+{
+        signal(SIGIO,handler);
+        printf("SIGIO signal is installed..\n");
+        printf("Raising SIGIO ..\n");
+        raise(SIGIO);
+        while(1)
+        {
+                printf("Running..\n");
+                sleep(1);
+        }
+}
+```
+## 19. Implement a C program to handle the SIGINFO signal (status request from keyboard). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<unistd.h>
+#include<signal.h>
+void handler(int sig)
+{
+        printf("Caught the signal %d\n",sig);
+}
+void main()
+{
+#ifdef SIGINFO
+        signal(SIGINFO,handler);
+        printf("Waiting for SIGINFO signal Press Cntl+T\n");
+#else
+        signal(SIGUSR1,handler);
+        printf("Waiting for SIgUSR signal press kill -USR1 %d\n",getpid());
+#endif
+        while(1)
+        {
+                printf("Runnig...\n");
+                sleep(1);
+        }
+}
+```
+## 20. Create a C program to handle the SIGRTMIN signal (minimum real-time signal).
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<signal.h>
+#include<unistd.h>
+void handler(int sig)
+{
+        printf("Received the signal %d\n",sig);
+}
+void main()
+{
+        struct sigaction act;
+        act.sa_handler=handler;
+        act.sa_flags=0;
+        sigemptyset(&act.sa_mask);
+        if(sigaction(SIGRTMIN,&act,0)==-1)
+        {
+                perror("Details:");
+                exit(1);
+        }
+        printf("SIGRTMIN signal is arrived\n");
+        printf("Send kill -SIGRTMIN %d\n",getpid());
+        while(1)
+        {
+                printf("Running..\n");
+                sleep(1);
+        }
+}
+```
+## 21. Implement a program to handle the SIGRTMAX signal (maximum real-time signal). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<signal.h>
+#include<unistd.h>
+void handler(int sig)
+{
+        printf("Received the signal %d\n",sig);
+}
+void main()
+{
+        struct sigaction act;
+        act.sa_handler=handler;
+        act.sa_flags=0;
+        sigemptyset(&act.sa_mask);
+        if(sigaction(SIGRTMAX,&act,0)==-1)
+        {
+                perror("Details:");
+                exit(1);
+        }
+        printf("SIGRTMAX signal is installed..\n");
+        printf("Send kill -SIGRTMAX %d\n",getpid());
+        while(1)
+        {
+                printf("Running..\n");
+                sleep(1);
+        }
+}
+```
+## 22. Write a program to handle the SIGABRT_ABORT signal (abort signal). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<signal.h>
+#include<unistd.h>
+void handler(int sig)
+{
+        printf("Received the signal %d\n",sig);
+
+}
+void main()
+{
+        signal(SIGABRT,handler);
+        printf("Send abort signal \n");
+        abort();
+        printf("This is not shown after abort signal and exited\n");
+}
+```
+## 23. Create a C program to handle the SIGSEGV_SIGBUS signal (segmentation fault or bus error). 
+```c
+
+```
