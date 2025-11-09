@@ -651,5 +651,60 @@ void main()
 ```
 ## 23. Create a C program to handle the SIGSEGV_SIGBUS signal (segmentation fault or bus error). 
 ```c
-
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<signal.h>
+#include<string.h>
+void handler(int sig)
+{
+        printf("Received..the [%s] signal \n",strsignal(sig));
+        exit(1);
+}
+void main()
+{
+        struct sigaction act;
+        act.sa_handler=handler;
+        act.sa_flags=0;
+        sigemptyset(&act.sa_mask);
+        if(sigaction(SIGSEGV,&act,0)==-1)
+        {
+                perror("Details:");
+                exit(1);
+        }
+        if(sigaction(SIGBUS,&act,0)==-1)
+        {
+                perror("DEtails:");
+                exit(1);
+        }
+        printf("SIGSEGV and SEGBUS signals handled\n");
+        raise(SIGSEGV);
+        printf("Fault not occured\n");
+}
+```
+## 24. Implement a program to handle the SIGUSR1_SIGUSR2 signal (user-defined signal). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<signal.h>
+#include<unistd.h>
+void handler(int sig)
+{
+        if(sig==SIGUSR1)
+                printf("Received the SIGUSR1 signal %d\n",sig);
+        else if(sig==SIGUSR2)
+                printf("received the SIGUSR2 signal %d\n",sig);
+}
+void main()
+{
+        signal(SIGUSR1,handler);
+        signal(SIGUSR2,handler);
+        printf("Process ID : %d\n",getpid());
+        printf("send the kill -USR1 %d or kill -USR2 %d\n",getpid(),getpid());
+        while(1)
+        {
+                printf("Running..\n");
+                sleep(1);
+        }
+}
 ```
