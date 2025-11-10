@@ -708,3 +708,185 @@ void main()
         }
 }
 ```
+## 25.Create a C program to handle the SIGCONT_SIGSTOP signal (continue or stop executing). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<signal.h>
+static int cont_count=0;
+static int tstp_count=0;
+void handler(int sig)
+{
+        if(sig==SIGCONT)
+        {
+                cont_count++;
+                printf("Received the SIGCONT signal %d\n",sig);
+        }
+        else if(sig==SIGTSTP)
+        {
+                tstp_count++;
+                printf("Received the SIGTSTP signal %d\n",sig);
+        }
+}
+void main()
+{
+        struct sigaction act;
+        act.sa_handler=handler;
+        act.sa_flags=0;
+        sigemptyset(&act.sa_mask);
+        if(sigaction(SIGCONT,&act,0)==-1)
+        {
+                perror("Details:");
+                exit(1);
+        }
+        if(sigaction(SIGTSTP,&act,0)==-1)
+        {
+                perror("Details:");
+                exit(1);
+        }
+        printf("SIGCONT and SIGTSTP signals are installed\n");
+        printf("send kill -TSTP %d and kill -CONT %d\n",getpid(),getpid());
+        int i;
+        for(i=0;;i++)
+        {
+                printf("%d ticks, %d cont count and %d tstp count\n",i,cont_count,tstp_count);
+                sleep(1);
+        }
+}
+```
+## 26.Write a program to demonstrate how to block signals using sigprocmask(). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<signal.h>
+void handler(int sig)
+{
+        printf("Received the signal %d\n",sig);
+}
+void main()
+{
+        sigset_t set,old;
+        signal(SIGINT,handler);
+        sigemptyset(&set);
+        sigaddset(&set,SIGINT);
+        printf("Block the SIGINT signal for 10 sec..\n");
+        sigprocmask(SIG_BLOCK,&set,&old);
+        sleep(10);
+        printf("now unblock the SIGINT signal :\n");
+        sigprocmask(SIG_SETMASK,&old,NULL);
+        printf("send the signal kill -2 %d\n",getpid());
+        while(1)
+        {
+                printf("Running..\n");
+                sleep(1);
+        }
+}
+```
+## 27.Write a program to implement a timer using signals.
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<signal.h>
+#include<sys/time.h>
+static int ticks=0;
+void handler(int sig)
+{
+        ticks++;
+        printf("Received timer : %d ticks\n",ticks);
+}
+void main()
+{
+        signal(SIGALRM,handler);
+        struct itimerval timer;
+        timer.it_value.tv_sec=1;
+        timer.it_value.tv_usec=0;
+        timer.it_interval.tv_sec=1;
+        timer.it_interval.tv_usec=0;
+        setitimer(ITIMER_REAL,&timer,0);
+        while(ticks<10)
+                pause();
+        timer.it_value.tv_sec=0;
+        timer.it_value.tv_usec=0;
+        timer.it_interval.tv_sec=0;
+        timer.it_interval.tv_usec=0;
+        setitimer(ITIMER_REAL,&timer,0);
+        printf("timer reached Max ticks and exited\n");
+}
+```
+## 28.Write a program to handle a real-time signal using sigqueue(). 
+```c
+#include <stdio.h>
+#include <signal.h>
+#include <unistd.h>
+#include <stdlib.h>
+void handler(int sig, siginfo_t *info, void *context)
+{
+    printf("Received signal %d with value %d\n", sig, info->si_value.sival_int);
+}
+int main()
+{
+    pid_t pid = getpid();
+    struct sigaction sa;
+    union sigval value;
+    sa.sa_sigaction = handler;
+    sa.sa_flags = SA_SIGINFO;
+    sigemptyset(&sa.sa_mask);
+    sigaction(SIGRTMIN, &sa, NULL);
+    printf("My PID = %d\n", pid);
+    printf("Sending SIGRTMIN to myself using sigqueue...\n");
+    value.sival_int = 1234;
+    sigqueue(pid, SIGRTMIN, value);
+    sleep(1);
+    return 0;
+}
+```
+## 29.Write a program to handle SIGALRM (alarm clock) signal for implementing a timeout mechanism in system programming.
+```c
+#include <unistd.h>
+#include <signal.h>
+#include <string.h>
+#include <errno.h>
+#define TIMEOUT 5
+#define BUF_SIZE 256
+volatile sig_atomic_t timed_out = 0;
+void alarm_handler(int sig)
+{
+    (void)sig;
+    timed_out = 1;
+    const char msg[] = "\nTimeout! (SIGALRM)\n";
+    write(STDOUT_FILENO, msg, sizeof(msg) - 1);
+}
+int main(void)
+{
+    struct sigaction sa;
+    char buf[BUF_SIZE];
+    ssize_t n;
+    sa.sa_handler = alarm_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    if (sigaction(SIGALRM, &sa, NULL) == -1) {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
+    printf("You have %d seconds to type a line and press Enter:\n> ", TIMEOUT);
+    fflush(stdout);
+    alarm(TIMEOUT);
+    n = read(STDIN_FILENO, buf, BUF_SIZE - 1);
+    if (n < 0) {
+        if (errno == EINTR && timed_out) {
+            printf("No input received within %d seconds. Exiting.\n", TIMEOUT);
+            return 0;
+        } else {
+            perror("read");
+            return 1;
+        }
+    }
+    alarm(0);
+    buf[n] = '\0';
+    printf("You typed: %s", buf);
+    return 0;
+}
+```
