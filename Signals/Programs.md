@@ -19,7 +19,53 @@ int main() {
 }
 ```
 ## 2. Implement a C program to send a custom signal to another process.
+#### receiver.c
 ```c
+// receiver.c — waits for a custom signal (SIGUSR1 or SIGUSR2)
+#include <stdio.h>
+#include <signal.h>
+#include <unistd.h>
+void handle_sigusr1(int sig) {
+    printf("\nReceived SIGUSR1[%d] signal from another process!\n",sig);
+}
+void handle_sigusr2(int sig) {
+    printf("\nReceived SIGUSR2[%d] signal from another process!\n",sig);
+}
+int main() {
+    signal(SIGUSR1, handle_sigusr1);
+    signal(SIGUSR2, handle_sigusr2);
+    printf("Receiver running... PID = %d\n", getpid());
+    printf("Waiting for a custom signal (SIGUSR1 or SIGUSR2)...\n");
+    while (1) {
+        printf("Running..\n");
+        sleep(1);
+    }
+    return 0;
+}
+```
+#### sender.c
+```c
+// sender.c — sends a custom signal to another process
+#include <stdio.h>
+#include <signal.h>
+#include <stdlib.h>
+int main() {
+    pid_t pid;
+    int sig_choice;
+    printf("Enter the PID of receiver process: ");
+    scanf("%d", &pid);
+    printf("Choose signal to send:\n");
+    printf("1. SIGUSR1\n");
+    printf("2. SIGUSR2\n");
+    printf("Enter choice: ");
+    scanf("%d", &sig_choice);
+    int sig = (sig_choice == 1) ? SIGUSR1 : SIGUSR2;
+    if (kill(pid, sig) == 0)
+        printf("Sent signal %d successfully to process %d\n", sig, pid);
+    else
+        perror("Error sending signal");
+    return 0;
+}
 ```
 ## 3. Create a C program to ignore the SIGCHLD signal temporarily.
 ```c
