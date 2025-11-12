@@ -890,3 +890,184 @@ int main(void)
     return 0;
 }
 ```
+## 30. Create a C program to handle the SIGTRAP signal (trace/breakpoint trap). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<signal.h>
+void handler(int sig)
+{
+        printf("Received the signal %d\n",sig);
+        sleep(1);
+}
+void main()
+{
+        signal(SIGTRAP,handler);
+        printf("SIGTRAP signal is installed\n");
+        printf("raise sigtrap signal or kill -TRAP %d\n",getpid());
+        raise(SIGTRAP);
+        while(1)
+        {
+                printf("Running..\n");
+                sleep(1);
+        }
+}
+```
+## 31. Create a C program to handle the SIGWINCH_SIGINFO signal (window size change or status request from keyboard). 
+```c
+// Handle SIGWINCH and SIGINFO signals in C
+#include <stdio.h>
+#include <signal.h>
+#include <unistd.h>
+void handle_sigwinch(int sig) {
+    printf("\nReceived SIGWINCH (window size change) signal!\n");
+}
+void handle_siginfo(int sig) {
+    printf("\nReceived SIGINFO (status request) signal!\n");
+}
+int main() {
+    signal(SIGWINCH, handle_sigwinch);
+#ifdef SIGINFO
+    signal(SIGINFO, handle_siginfo);
+#endif
+    printf("Program running... PID: %d\n", getpid());
+    printf("Resize the terminal or send a signal using:\n");
+    printf("  kill -WINCH %d\n", getpid());
+#ifdef SIGINFO
+    printf("  kill -INFO %d\n", getpid());
+#endif
+    while (1) {
+        printf("Runnig..\n");
+        sleep(1);
+    }
+
+    return 0;
+}
+```
+## 32. Implement a program to handle the SIGSYS_SIGPIPE signal (bad system call or write on a pipe with no one to read it). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<signal.h>
+#include<unistd.h>
+void handler_pipe(int sig)
+{
+        printf("Received the SIGPIPE signal %d\n",sig);
+}
+void handler_sys(int sig)
+{
+        printf("Received the SIGSYS signal %d\n",sig);
+}
+void main()
+{
+        signal(SIGPIPE,handler_pipe);
+        signal(SIGSYS,handler_sys);
+        printf("SIGSYS handler is installed \n");
+        int fd[2];
+        pipe(fd);
+        if(fork()==0)
+        {
+                close(fd[1]);
+                close(fd[0]);
+                exit(0);
+        }
+        else
+        {
+                close(fd[0]);
+                sleep(1);
+                write(fd[1],"Hello",5);
+                raise(SIGSYS);
+                close(fd[1]);
+        }
+        printf("Program finished\n");
+}
+```
+## 33. Write a program to handle the SIGURG_SIGTSTP signal (urgent condition on socket or stop signal). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<signal.h>
+void handler_tstp(int sig)
+{
+        printf("Received the signal %d\n",sig);
+        sleep(10);
+}
+void handler_urg(int sig)
+{
+        printf("Received the signal %d\n",sig);
+        sleep(10);
+}
+void main()
+{
+        signal(SIGTSTP,handler_tstp);
+        signal(SIGURG,handler_urg);
+        printf("Both signals are installed\n");
+        printf("to SIGSTSTP trigger then press cntl+Z \n");
+        printf("for SIGURG to send manually kill -URG %d\n",getpid());
+        while(1)
+        {
+                printf("Running..\n");
+                sleep(1);
+        }
+}
+```
+## 34. Create a C program to handle the SIGCONT_SIGSTOP signal (continue or stop executing). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<signal.h>
+void handler_cont(int sig)
+{
+        printf("Received the SIGCONT signal %d\n",sig);
+        sleep(2);
+}
+void handler_stop(int sig)
+{
+        printf("Received the SIGSTOP signal %d\n",sig);
+        sleep(2);
+}
+void main()
+{
+        signal(SIGSTOP,handler_stop);
+        signal(SIGCONT,handler_cont);
+        printf("Both signal are installed\n");
+        printf(" Manually send kill -CONT %d and kill -STOP %d\n",getpid(),getpid());
+        while(1)
+        {
+                printf("Runnig..\n");
+                sleep(1);
+        }
+}
+```
+## 35. Implement a program to handle the SIGTTIN_SIGTTOU signal (background read or write attempted from control terminal). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<signal.h>
+void handler_in(int sig)
+{
+        printf("Received the TTIN signal %d\n",sig);
+        sleep(1);
+}
+void handler_out(int sig)
+{
+        printf("Received the TTOU signal %d\n",sig);
+        sleep(1);
+}
+void main()
+{
+        signal(SIGTTIN,handler_in);
+        signal(SIGTTOU,handler_out);
+        printf("Both signals are installed\n");
+        printf("send kill -TTIN %d and kill -TTOU %d\n",getpid(),getpid());
+        while(1)
+        {
+                printf("Runnig..\n");
+                sleep(1);
+        }
+}
+```
