@@ -1117,3 +1117,150 @@ void main()
         }
 }
 ```
+## 36. Create a C program to handle the SIGXCPU_SIGXFSZ signal (CPU time limit exceeded or file size limit exceeded).
+```c
+#include<stdio.h>
+#include<sys/resource.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<signal.h>
+void handler_cpu(int sig)
+{
+        printf("Received the SIGXCPU signal %d\n",sig);
+        sleep(1);
+}
+void handler_fsz(int sig)
+{
+        printf("Received the SIGXESZ signal %d\n",sig);
+        sleep(1);
+}
+void main()
+{
+        struct rlimit limit;
+        limit.rlim_cur=2;
+        limit.rlim_max=3;
+        setrlimit(RLIMIT_CPU,&limit);
+        limit.rlim_cur=1024;
+        limit.rlim_max=4096;
+        setrlimit(RLIMIT_FSIZE,&limit);
+        signal(SIGXCPU,handler_cpu);
+        signal(SIGXFSZ,handler_fsz);
+        printf("Both signals are installed\n");
+        printf("trigger kill -SIGXCPU %d\n",getpid());
+        while(1)
+        {
+                printf("Running..\n");
+                sleep(1);
+        }
+}
+```
+## 37. Implement a program to handle the SIGVTALRM_SIGWINCH signal (virtual timer expired or window size change). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<signal.h>
+#include<unistd.h>
+void handler_vt(int sig)
+{
+        printf("Received the signal %d\n",sig);
+}
+void handler_win(int sig)
+{
+        printf("Received the signal %d\n",sig);
+}
+void main()
+{
+        signal(SIGVTALRM,handler_vt);
+        signal(SIGWINCH,handler_win);
+        printf("Both signals are installed\n");
+        printf("Send kill -VTALRM %d or kill -WINCH %d\n",getpid(),getpid());
+        while(1)
+        {
+                printf("Running..\n");
+                sleep(1);
+        }
+}
+```
+## 38. Write a program on watch dog timer and it explain its working 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<signal.h>
+#include<unistd.h>
+void handler(int sig)
+{
+        printf("watchdog timer expired!program is not responsed\n");
+}
+void main()
+{
+        signal(SIGALRM,handler);
+        alarm(5);
+        printf("Program started. ALArm set for 5 seconds\n");
+        int i;
+        for(i=0;i<=3;i++)
+        {
+                printf("Working ...reset watchdog(%d)\n",i);
+                sleep(1);
+                alarm(5);
+        }
+        printf("watchdog will expire now\n");
+        while(1)
+        {
+                printf("Infinite loop\n");
+                sleep(1);
+        }
+}
+```
+## 39. Write a program to demonstrate how to handle and recover from a segmentation fault (SIGSEGV) in a system programming scenario.
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<signal.h>
+#include<unistd.h>
+void handler(int sig)
+{
+        printf("Received the signal %d\n",sig);
+        printf("Now we can safely exit\n");
+        exit(0);
+}
+void main()
+{
+        struct sigaction act;
+        act.sa_handler=handler;
+        act.sa_flags=0;
+        sigemptyset(&act.sa_mask);
+        sigaction(SIGSEGV,&act,0);
+        printf("SIGSEGV signal is installed now raise seg fault\n");
+        raise(SIGSEGV);
+        while(1)
+        {
+                printf("Running...\n");
+                sleep(1);
+        }
+        printf("This line not showing\n");
+}
+```
+## 40. Write a program to demonstrate how to block signals using sigprocmask(). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<signal.h>
+void main()
+{
+        sigset_t new,old;
+        sigemptyset(&new);
+        sigaddset(&new,SIGINT);
+        sigprocmask(SIG_BLOCK,&new,&old);
+        int i=0;
+        while(i<10)
+        {
+                printf("Running...%d\n",i);
+                i++;
+                sleep(1);
+        }
+        sigprocmask(SIG_UNBLOCK,&old,NULL);
+        printf("sigint is unblocked\n");
+}
+```
+## 
