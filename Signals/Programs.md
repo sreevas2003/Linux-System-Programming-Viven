@@ -1263,4 +1263,133 @@ void main()
         printf("sigint is unblocked\n");
 }
 ```
-## 
+## 41. Write a program to demonstrate signal handling in a multithreaded environment. 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<signal.h>
+#include<unistd.h>
+#include<pthread.h>
+static int count=1;
+void *worker(void *arg)
+{
+        while(1)
+        {
+                printf("Running..\n");
+                sleep(1);
+        }
+        printf("thread worker exited\n");
+        return NULL;
+}
+void *handler(void *arg)
+{
+        sigset_t *set=(sigset_t *)arg;
+        int sig;
+        sigwait(set,&sig);
+        if(sig==SIGINT)
+        {
+                printf("Received the signal..\n");
+                sleep(1);
+        }
+        count=0;
+        return NULL;
+}
+int main()
+{
+        pthread_t thread_worker,sig_handler;
+        sigset_t set;
+        sigemptyset(&set);
+        sigaddset(&set,SIGINT);
+        pthread_sigmask(SIG_BLOCK,&set,NULL);
+        pthread_create(&thread_worker,NULL,worker,NULL);
+        pthread_create(&sig_handler,NULL,handler,NULL);
+        pthread_join(thread_worker,NULL);
+        pthread_join(sig_handler,NULL);
+        printf("Main exiting\n");
+        return 0;
+}
+```
+## 42. Create a C program to handle the SIGCHLD_SIGCONT signal (child process terminated or continue executing). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<signal.h>
+#include<unistd.h>
+void chld_handler(int sig)
+{
+        printf("Received the signal %d\n",sig);
+}
+void cont_handler(int sig)
+{
+        printf("Received the signal %d\n",sig);
+}
+void main()
+{
+        signal(SIGCHLD,chld_handler);
+        signal(SIGCONT,cont_handler);
+        printf("Both signals are installed\n");
+        printf("Send manually kill -CONT %d and kill -CHLD %d\n",getpid(),getpid());
+        while(1)
+        {
+                printf("Running...\n");
+                sleep(1);
+        }
+}
+```
+## 43. Write a program to handle the SIGBUS_SIGCHLD signal (bus error or child process terminated).
+```c
+#include<stdio.h>
+#include<unistd.h>
+#include<stdlib.h>
+#include<signal.h>
+void bus_handler(int sig)
+{
+        printf("Received the signal %d\n",sig);
+}
+void chld_handler(int sig)
+{
+        printf("Received the signal %d\n",sig);
+}
+void main()
+{
+        signal(SIGCHLD,chld_handler);
+        signal(SIGBUS,bus_handler);
+        printf("Both signals are installed\n");
+        printf("send manually kill -BUS %d and kill -CHLD %d\n",getpid(),getpid());
+        while(1)
+        {
+                printf("Running..\n");
+                sleep(1);
+        }
+}
+```
+## 44. Write a program to handle the SIGPIPE_SIGQUIT signal (write on a pipe with no one to read it or quit signal). 
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<signal.h>
+#include<unistd.h>
+void pipe_handler(int sig)
+{
+        printf("Received the signal %d\n",sig);
+}
+void quit_handler(int sig)
+{
+        printf("Received the signal %d\n",sig);
+}
+void main()
+{
+        signal(SIGPIPE,pipe_handler);
+        signal(SIGQUIT,quit_handler);
+        printf("Both signals are installed\n");
+        int status,p[2];
+        pipe(p);
+        close(p[0]);
+        write(p[1],"HELLO",5);
+        while(1)
+        {
+                printf("Running..\n");
+                sleep(1);
+        }
+}
+```
