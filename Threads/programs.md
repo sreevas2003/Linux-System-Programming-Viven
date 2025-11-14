@@ -1,19 +1,25 @@
 ## 1.Write a C program to create a thread that prints Hello world.
 ```c
-#include <stdio.h>
-#include <pthread.h>
-void *helloworld(void *args);
-int main(void)
+#include<stdio.h>
+#include<string.h>
+#include<pthread.h>
+#include<stdlib.h>
+void* fun(void *arg);
+void main()
 {
-    pthread_t t1;
-    pthread_create(&t1, NULL, helloworld, NULL);
-    pthread_join(t1, NULL);
-    return 0;
+        pthread_t ti;
+        int res;
+        pthread_create(&ti,NULL,fun,"Hello, World!");
+        pthread_join(ti,&res);
+        printf("%d\n",res);
 }
-void *helloworld(void *args)
+void* fun(void *arg)
 {
-    printf("Hello world\n");
-    return NULL;
+        char *sptr;
+        sptr=(char*)arg;
+        printf("%s\n",sptr);
+        int re=strlen(sptr);
+        return re;
 }
 ```
 ## 2.Modify the above program to create multiple threads, each printing its own message.
