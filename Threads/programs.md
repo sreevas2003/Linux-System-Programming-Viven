@@ -122,31 +122,21 @@ void main()
 ## 5.Write a program to create two threads that print their thread ids.
 ```c
 #include<stdio.h>
+#include<stdlib.h>
 #include<unistd.h>
 #include<pthread.h>
-void *thread1(void *args)
+void *fun(void* arg)
 {
-        printf("hello\n");
         return NULL;
 }
-void *thread2(void *args)
+void main()
 {
-        printf("world\n");
-        return NULL;
-}
-int main()
-{
-        pthread_t t1,t2;
-
-        pthread_create(&t1,NULL,thread1,NULL);
-        pthread_create(&t2,NULL,thread2,NULL);
-
-        printf("thread1 identifier:%lu\n",t1);
-        printf("thread2 identifier:%lu\n",t2);
-
-        pthread_join(t1,NULL);
-        pthread_join(t2,NULL);
-        return 0;
+        pthread_t ti;
+        pid_t tid;
+        pthread_create(&ti,NULL,fun,NULL);
+        tid=gettid();
+        printf("Thread id is : %lu\n",tid);
+        pthread_join(ti,NULL);
 }
 ```
 ## 6.Write a program to create a thread that prints sum of two numbers.
