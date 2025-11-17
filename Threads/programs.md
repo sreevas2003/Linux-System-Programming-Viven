@@ -25,33 +25,39 @@ void* fun(void *arg)
 ## 2.Modify the above program to create multiple threads, each printing its own message.
 ```c
 #include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
 #include<pthread.h>
-#include<unistd.h>
-void *thread1(void *args)
+void* fun1(void* arg);
+void* fun2(void* arg);
+void main()
 {
-        printf("Hello\n");
-        sleep(1);
-        return NULL;
+        char str[30],s[30];
+        printf("Enter string 1 ");
+        gets(str);
+        printf("Enter string2 ");
+        gets(s);
+        int res1,res2;
+        pthread_t ti,ti2;
+        pthread_create(&ti,NULL,fun1,str);
+        pthread_join(ti,&res1);
+        pthread_create(&ti2,NULL,fun2,s);
+        pthread_join(ti,&res2);
+        printf("%d\n",res1);
+        printf("%d\n",res2);
 }
-void *thread2(void *args)
+void* fun1(void* arg)
 {
-        printf("I am learning linux\n");
-        sleep(1);
-        return NULL;
+        int res=printf("%s\n",(char*)arg);
+        return res;
 }
-int main()
+void* fun2(void* arg)
 {
-        pthread_t t1,t2;
-        //to create threads
-        pthread_create(&t1,NULL,thread1,NULL);
-        pthread_create(&t2,NULL,thread2,NULL);
-
-        pthread_join(t1,NULL);
-        pthread_join(t2,NULL);
-        return 0;
+        int res=printf("%s\n",(char*)arg);
+        return res;
 }
 ```
-## Program to create two threads that prints numbers from 1 to 10 concurrently.
+## 3.Program to create two threads that prints numbers from 1 to 10 concurrently.
 ```c
 #include<stdio.h>
 #include<unistd.h>
