@@ -60,74 +60,63 @@ void* fun2(void* arg)
 ## 3.Program to create two threads that prints numbers from 1 to 10 concurrently.
 ```c
 #include<stdio.h>
-#include<unistd.h>
 #include<stdlib.h>
 #include<pthread.h>
-void *thread1(void *args)
+void* fun1(void* arg);
+void* fun2(void* arg);
+void main()
 {
-        int i=1;
-        for(i=1;i<=10;i++)
-        {
-                printf("Thread1:%d\n",i);
-                sleep(1);
-        }
-        return NULL;
+        pthread_t ti1,ti2;
+        pthread_create(&ti1,NULL,fun1,NULL);
+        pthread_create(&ti2,NULL,fun2,NULL);
+        pthread_join(ti1,NULL);
+        printf("\n");
+        pthread_join(ti2,NULL);
+        printf("\n");
 }
-void *thread2(void *args)
+void* fun1(void* arg)
 {
-        int i=1;
-        for(i=1;i<=10;i++)
-        {
-                printf("Thread2:%d\n",i);
-                sleep(1);
-        }
-        return NULL;
+        int i;
+        printf("thread1 :\n");
+        for(i=1;i<11;i++)
+                printf("%d\t",i);
 }
-int main()
+void* fun2(void* arg)
 {
-        pthread_t t1,t2;
-        pthread_create(&t1,NULL,thread1,NULL);
-        pthread_create(&t2,NULL,thread2,NULL);
-
-        pthread_join(t1,NULL);
-        pthread_join(t2,NULL);
-        return 0;
+        printf("thread2 :\n");
+        int i;
+        for(i=1;i<11;i++)
+                printf("%d\t",i);
 }
 ```
 ## 4.Implement a thread that calculates the factorial of a number
 ```c
 #include<stdio.h>
 #include<stdlib.h>
-#include<unistd.h>
 #include<pthread.h>
 void *factorial(void *args)
 {
         int n= *(int *)args;
-        long long int fact=1;
-        for(int i=1;i<=n;i++)
+        long int* fact=malloc(sizeof(long int));
+        *fact=1;
+        for(int i=2;i<=n;i++)
         {
-                fact=fact*i;
+                *fact= *fact * i;
         }
-        long long *result=(long long *)malloc(sizeof(long long));
-        *result=fact;
-        return result;
+
+        return fact;
 }
-int main()
+void main()
 {
         pthread_t ti;
         int num;
-        printf("enter a number to find factorial:\n");
+        printf("Enter a number : ");
         scanf("%d",&num);
-        void *res;
-
+        long int *res;
         pthread_create(&ti,NULL,factorial,&num);
-        pthread_join(ti,&res);
-
-        long long *factresult=(long long*)res;
-
-        printf("factorial of %d is %lld:\n",num,*factresult);
-        free(factresult);
-        return 0;
+        pthread_join(ti,(void **)&res);
+        printf("factorial of %d is %ld:\n",num,*res);
+        free(res);
 }
 ```
 ## 5.Write a program to create two threads that print their thread ids.
